@@ -1,0 +1,46 @@
+<?php
+
+ use PHPMailer\PHPMailer\PHPMailer;
+ use PHPMailer\PHPMailer\Exception;
+ require 'vendor/autoload.php';
+
+ $post_data = "secret=___&response=".$_POST['gtoken'];
+     $ch = curl_init();
+     curl_setopt($ch, CURLOPT_URL, 'https://www.google.com/recaptcha/api/siteverify');
+     curl_setopt($ch, CURLOPT_POST, true);
+     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded; charset=utf-8', 'Content-Length: ' . strlen($post_data)));
+     curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+     $response = curl_exec($ch);
+     $rep = json_decode($response);
+     curl_close($ch);
+if ($rep->success == true)
+  {
+
+
+ $mail = new PHPMailer(true);                              // Passing `true` enables exceptions
+                try {
+                    //$mail->SMTPDebug = 2;
+                   // $mail->Debugoutput = function($str, $level) {echo "debug level $level; message: $str";};
+                    $mail->Port = 465;
+                    $mail->isSMTP();                                      // Set mailer to use SMTP
+
+                    $mail->SMTPAuth = true;                               // Enable SMTP authentication
+                    $mail->Host = "smtp.gmail.com";  // Specify main and backup SMTP servers
+                    $mail->Username = 'nekweber@gmail.com';                 // SMTP username
+                    $mail->Password = '642296nic';                           // SMTP password
+                    $mail->SMTPSecure = 'ssl';                            // Enable TLS encryption, `ssl` also accepted
+                    $mail->setFrom('___@gmail.com', 'Mailer');
+                    $mail->addAddress('___@gmail.com', 'Nikita .');     // Add a recipient
+                    $mail->addReplyTo('___', 'noreply');
+                    $mail->isHTML(true);                                  // Set email format to HTML
+                    $mail->Subject = 'New Message';
+                    $mail->Body    = "Name: ".$_POST['name'].", Tel: ".$_POST['phone'].", Mail: ".$_POST['email'].", Text: ".$_POST['body'];
+                    $mail->AltBody = '';
+                    $mail->send();
+                    echo 'Message has been sent';
+                } catch (Exception $e) {
+                    echo $e;
+                }
+  }
+  
