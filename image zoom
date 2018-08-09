@@ -1,0 +1,57 @@
+(function () {
+    let wrap = document.querySelector('.desc_slider_wrap');
+    let previewImg = document.querySelector('.desc_slider_img');
+    let result = document.querySelector('.result_desc');
+    let loupe = document.querySelector('.desc_loupe');
+
+    function getCursorPosition(e) {
+      let  x = e.pageX;
+      let  y = e.pageY;
+      x = x - pageXOffset;
+      y = y - pageYOffset;
+
+      return {x: x, y: y};
+    }
+
+    function moveLoupe(cursor) {
+         let rect = previewImg.getBoundingClientRect();
+         let x = (cursor.x-rect.x)-loupe.offsetWidth/2;
+         let y =(cursor.y-rect.y)-loupe.offsetHeight/2;
+
+         let checky =(cursor.y-rect.y)+loupe.offsetHeight/2;
+         let checkx =(cursor.x-rect.x)+loupe.offsetWidth/2;
+        if (checkx > previewImg.offsetWidth) x = previewImg.offsetWidth-loupe.offsetWidth;
+        if (checky > previewImg.offsetHeight) y = previewImg.offsetHeight-loupe.offsetHeight;
+        if (cursor.x-loupe.offsetWidth/2 <= rect.x) x = 0;
+        if (cursor.y-loupe.offsetHeight/2 <= rect.y) y = 0;
+
+         loupe.style.left = x +'px';
+         loupe.style.top = y+'px';
+
+         return {x: x, y: y };
+    }
+
+    function updateResult(position, cx, cy) {
+        result.style.backgroundPosition = `-${position.x*cx}px -${position.y*cy}px`;
+    }
+
+    wrap.addEventListener('mousemove', (e)=>{
+
+       previewImg.style.opacity = 0;
+        let cx = previewImg.offsetWidth / loupe.offsetWidth;
+        let cy = previewImg.offsetHeight / loupe.offsetHeight;
+        loupe.style.width = '200px';
+        let heigth = 200 / (previewImg.offsetWidth/previewImg.offsetHeight);
+
+        loupe.style.height = heigth +'px';
+        result.style.backgroundSize = `${cx*previewImg.offsetWidth}px ${cy*previewImg.offsetHeight}px`;
+        result.style.backgroundImage = `url('${previewImg.src}')`;
+        let cursor =  getCursorPosition(e);
+        let pos = moveLoupe(cursor);
+        updateResult(pos, cx, cy);
+    });
+    wrap.addEventListener('mouseleave', ()=> {
+       previewImg.style.opacity = 1;
+       console.log('leave');
+    });
+})();
