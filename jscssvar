@@ -1,0 +1,112 @@
+ <div class="test2_wrap">
+    <div class="test2">test2</div>
+  </div>
+  <div class="test_wrap">
+  <div class="test js" data-event="mouseover" data-change="accent" data-remove="mouseleave" data-root=":root">test</div>
+  <div class="test js" data-event="click" data-change="accent" data-root=".test2_wrap" data-remove="true">test</div>
+  <div class="test js" data-event="click" data-remove="mouseover" data-change="accent" data-root=":root">test</div>
+  <div class="test js" data-event="click" data-remove="mouseover" data-change="accent background-style">test</div>
+    <div style="background-color: #555555; padding: 200px;" class="area">
+      <div class="test js" data-event="click" data-remove="out" data-change="accent background-style" data-out=".area">out</div>
+
+    </div>
+</div>
+  <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
+  <script>
+    let elems = document.querySelectorAll('.js');
+    function removeBack(el) {
+      if (el.dataset.root === undefined){
+        var root = document.querySelector(':root');
+      }
+      else{
+        var root = document.querySelector(el.dataset.root);
+
+      }
+      parseValues(el).forEach((prop)=>{
+        root.style.removeProperty(`--${prop}`);
+
+      });
+
+
+    }
+
+    function parseValues(el) {
+      return el.dataset.change.split(' ');
+    }
+
+    function setStyle(el) {
+      let styles = getComputedStyle(el);
+      if (el.dataset.root === undefined){
+        var root = document.querySelector(':root');
+      }
+      else{
+        var root = document.querySelector(el.dataset.root);
+
+      }
+      parseValues(el).forEach((prop)=>{
+        console.log(prop);
+
+        let style = styles.getPropertyValue(`--change-${prop}`);
+        let changeProperty = `--${prop}`;
+        root.style.setProperty(changeProperty, style);
+        console.log(style);
+        console.log(changeProperty);
+      });
+
+    }
+    elems.forEach((el)=>{
+      let toggled = false;
+      el.addEventListener(el.dataset.event, ()=>{
+         if (el.dataset.remove === 'true' && toggled ) {
+              toggled = false;
+              removeBack(el);
+         }
+         else{
+           toggled = true;
+           setStyle(el);
+         }
+
+      });
+      if (el.dataset.remove !== undefined && el.dataset.remove !== 'true') {
+
+        el.addEventListener(el.dataset.remove, ()=>{
+          console.log('event');
+          if (toggled){
+            toggled = false;
+            removeBack(el);
+          }
+
+        });
+      }
+      if (el.dataset.remove === 'out') {
+        document.addEventListener('click', (e)=>{
+          if (el.dataset.out === undefined){
+            var clickNone = el;
+          }
+          else {
+            var clickNone = document.querySelector(el.dataset.out);
+          }
+
+          console.log(e.target);
+          let targetElement = e.target; // clicked element
+
+          do {
+            if (targetElement == clickNone) {
+              return;
+            }
+
+
+            // Go up the DOM
+            targetElement = targetElement.parentNode;
+          } while (targetElement);
+
+          toggled = false;
+          removeBack(el);
+
+        });
+      }
+    });
+
+
+
+  </script>
